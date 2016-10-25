@@ -30,7 +30,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-//import android.content.res.ThemeConfig;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -683,43 +682,7 @@ public final class DUActionUtils {
         if (context == null || defRes == null || drawableName == null)
             return null;
 
-        // TODO: turn on cmte support when it comes back
         return getDrawable(defRes, drawableName, PACKAGE_SYSTEMUI);
-/*
-        ThemeConfig themeConfig = context.getResources().getConfiguration().themeConfig;
 
-        Drawable d = null;
-        if (themeConfig != null) {
-            try {
-                final String navbarThemePkgName = themeConfig.getOverlayForNavBar();
-                final String sysuiThemePkgName = themeConfig.getOverlayForStatusBar();
-                // Check if the same theme is applied for systemui, if so we can skip this
-                if (navbarThemePkgName != null && !navbarThemePkgName.equals(sysuiThemePkgName)) {
-                    // Navbar theme and SystemUI (statusbar) theme packages are different
-                    // But we can't assume navbar package has our drawable, so try navbar theme
-                    // package first. If we fail, try the systemui (statusbar) package
-                    // if we still fail, fall back to default package resource
-                    Resources res = context.getPackageManager().getThemedResourcesForApplication(
-                            PACKAGE_SYSTEMUI, navbarThemePkgName);
-                    d = getMaybeNullDrawable(res, drawableName, PACKAGE_SYSTEMUI);
-                    if (d == null) {
-                        // drawable not found in overlay, get from default SystemUI res
-                        d = getDrawable(defRes, drawableName, PACKAGE_SYSTEMUI);
-                    }
-                } else {
-                    // no navbar overlay present, get from default SystemUI res
-                    d = getDrawable(defRes, drawableName, PACKAGE_SYSTEMUI);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                // error thrown (unlikely), get from default SystemUI res
-                d = getDrawable(defRes, drawableName, PACKAGE_SYSTEMUI);
-            }
-        }
-        if (d == null) {
-            // theme config likely null, get from default SystemUI res
-            d = getDrawable(defRes, drawableName, PACKAGE_SYSTEMUI);
-        }
-        return d;
-        */
     }
 }
