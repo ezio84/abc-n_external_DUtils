@@ -53,6 +53,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -460,64 +461,74 @@ public final class DUActionUtils {
             options.inJustDecodeBounds = true;
             //decode the bitmap with calculated bounds
             Bitmap b1 = BitmapFactory.decodeStream(inputStream, null, options);
-            //check if the bitmap is too big, if yes scale the quality
-            options.inSampleSize = calculateInSampleSize(options);
+            //get raw height and width of the bitmap
+            int rawHeight = options.outHeight;
+            int rawWidth = options.outWidth;
+            //set max img size we will handle
+            final int maxHeight = 640;
+            final int maxWidth = 640;
 
-            //We need to close and load again the inputstream to avoid null
-            try {
-                inputStream.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            inputStream = context.getContentResolver().openInputStream(uri);
+            //if img is bigger than max we can handle, block the user and fire a toast
+            //else do our stuff to apply the custom icon
+            if (rawHeight > maxHeight || rawWidth > maxWidth) {
+                String toastMsg = (String) getValue(context, "too_big_img",
+                STRING, PACKAGE_SYSTEMUI);
+                Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show();
+                return null;
+            } else {
+                //check if the bitmap is big and we need to scale the quality to take less memory
+                options.inSampleSize = calculateInSampleSize(options, rawHeight, rawWidth);
 
-            //decode the stream again, with the calculated SampleSize option, 
-            //and allocate the memory. Also add some metrics options to take a proper density
-            options.inJustDecodeBounds = false;
-            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-            options.inScreenDensity = metrics.densityDpi;
-            options.inTargetDensity = metrics.densityDpi;
-            options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
-            b1 = BitmapFactory.decodeStream(inputStream, null, options);
-            return new BitmapDrawable(context.getResources(), b1);
+                //We need to close and load again the inputstream to avoid null
+                try {
+                    inputStream.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                inputStream = context.getContentResolver().openInputStream(uri);
+
+                //decode the stream again, with the calculated SampleSize option, 
+                //and allocate the memory. Also add some metrics options to take a proper density
+                options.inJustDecodeBounds = false;
+                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                options.inScreenDensity = metrics.densityDpi;
+                options.inTargetDensity = metrics.densityDpi;
+                options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
+                b1 = BitmapFactory.decodeStream(inputStream, null, options);
+                return new BitmapDrawable(context.getResources(), b1);
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         //clean up the system resources
         } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
                 }
-         }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     //Automate the quality scaling process
-    public static int calculateInSampleSize(BitmapFactory.Options options) {
-        //we do not scale quality if size is not more than 512x512
-        final int reqHeight = 512;
-        final int reqWidth = 512;
-        // get raw height and width of image
-        int height = options.outHeight;
-        int width = options.outWidth;
-        //do not scale quality for now
+    public static int calculateInSampleSize(BitmapFactory.Options options, int height, int width) {
+        //set default inSampleSize scale factor (no scaling)
         int inSampleSize = 1;
 
-        // If the img is too big, calculate the largest inSampleSize value that is a power of 2
-        //  and keeps both height and width larger than the requested height and width.
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-            while ((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
+        //if img size is in 513-640 range, sample scale factor will be 4x
+        if (height > 512 || width > 512) {
+            inSampleSize = 4;
+            return inSampleSize;
+        //if img size is in 257-511 range, sample scale factor will be 2x
+        } else if (height > 256 || width > 256) {
+            inSampleSize = 2;
+            return inSampleSize;
         }
+        //if img size is in 0-256 range, no need to scale it
         return inSampleSize;
     }
 
