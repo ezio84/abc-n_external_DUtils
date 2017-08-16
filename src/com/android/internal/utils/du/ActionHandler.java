@@ -304,6 +304,26 @@ public class ActionHandler {
             }
         }
 
+        private static void dispatchNavigationEditorResult(Intent intent) {
+            IStatusBarService service = getStatusBarService();
+            if (service != null) {
+                try {
+                    service.dispatchNavigationEditorResults(intent);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private static void toggleNavigationEditor() {
+            IStatusBarService service = getStatusBarService();
+            try {
+                service.toggleNavigationEditor();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
         private static void toggleFlashlight() {
             IStatusBarService service = getStatusBarService();
             try {
@@ -443,6 +463,10 @@ public class ActionHandler {
         }
     }
 */
+    public static void dispatchNavigationEditorResult(Intent intent) {
+        StatusBarHelper.dispatchNavigationEditorResult(intent);
+    }
+
     public static void performTask(Context context, String action) {
         // null: throw it out
         if (action == null) {
@@ -621,7 +645,7 @@ public class ActionHandler {
             volumePanel(context);
             return;
         } else if (action.equals(SYSTEMUI_TASK_EDITING_SMARTBAR)) {
-            editingSmartbar(context);
+            StatusBarHelper.toggleNavigationEditor();
             return;
         } else if (action.equals(SYSTEMUI_TASK_SPLIT_SCREEN)) {
             StatusBarHelper.splitScreen();
@@ -1010,10 +1034,6 @@ public class ActionHandler {
     public static void volumePanel(Context context) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         am.adjustVolume(AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI);
-    }
-    public static void editingSmartbar(Context context) {
-        context.sendBroadcastAsUser(new Intent("intent_navbar_edit"), new UserHandle(
-                UserHandle.USER_ALL));
     }
 
     private static void toggleOneHandedMode(Context context, String direction) {
