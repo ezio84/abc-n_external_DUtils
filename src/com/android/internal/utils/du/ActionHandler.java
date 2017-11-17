@@ -735,8 +735,15 @@ public class ActionHandler {
         ActivityManager.RunningTaskInfo lastTask = getLastTask(context, am);
 
         if (lastTask != null) {
-            am.moveTaskToFront(lastTask.id, ActivityManager.MOVE_TASK_NO_USER_ACTION);
+            am.moveTaskToFront(lastTask.id, ActivityManager.MOVE_TASK_NO_USER_ACTION,
+                    getAnimation(mContext).toBundle());
         }
+    }
+
+    private static ActivityOptions getAnimation(Context context) {
+        return ActivityOptions.makeCustomAnimation(context,
+                com.android.internal.R.anim.du_app_in,
+                com.android.internal.R.anim.du_app_out);
     }
 
     private static ActivityManager.RunningTaskInfo getLastTask(Context context,
