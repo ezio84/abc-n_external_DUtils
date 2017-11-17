@@ -112,7 +112,7 @@ public class ActionConstants {
               + dl(BUTTON3_TAG)
               + dl(SystemAction.Overview.mAction)   + dl(SystemAction.Overview.mLabelRes) + dl(EMPTY)
               + dl(SystemAction.SplitScreen.mAction)    + dl(SystemAction.SplitScreen.mLabelRes)  + dl(EMPTY)
-              + dl(SystemAction.LastApp.mAction)   + dl(SystemAction.LastApp.mLabelRes) + EMPTY;
+              + dl(SystemAction.NoAction.mAction)   + dl(SystemAction.NoAction.mLabelRes) + EMPTY;
 /*
               + dl(BUTTON4_TAG)
               + dl(SystemAction.ExpandedDesktop.mAction)       + dl(SystemAction.ExpandedDesktop.mLabelRes)     + dl(EMPTY)
